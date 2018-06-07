@@ -32,7 +32,7 @@ public class MovieDetail extends AppCompatActivity {
         Intent intentThatStartedThisActivity = getIntent();
         if (intentThatStartedThisActivity != null) {
             if (intentThatStartedThisActivity.hasExtra("movieDetails")) {
-                Movie mMovie = (Movie) intentThatStartedThisActivity.getSerializableExtra("movieDetails");
+                Movie mMovie = (Movie) intentThatStartedThisActivity.getParcelableExtra("movieDetails");
                 mTitleTextView.setText(mMovie.getTitle());
                 mReleaseDateTextView.setText(mMovie.getDate());
                 mOverviewTextView.setText(mMovie.getOverview());

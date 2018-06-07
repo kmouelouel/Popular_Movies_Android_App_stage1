@@ -2,9 +2,12 @@ package com.example.android.popularmoviesstage1;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,6 +19,7 @@ import android.widget.TextView;
 
 import com.example.android.popularmoviesstage1.adapters.GridViewAdapter;
 import com.example.android.popularmoviesstage1.models.Movie;
+import com.example.android.popularmoviesstage1.utilities.FetchMoviesTask;
 import com.example.android.popularmoviesstage1.utilities.NetworkUtils;
 import com.example.android.popularmoviesstage1.utilities.OpenMoviesJsonUtils;
 
@@ -24,7 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private static String SORT_BY_VALUE = "vote_average.desc";
+
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private static String SORT_PATH = "top_rated";
     private ProgressBar mLoadingIndicator;
     private TextView mErrorMessageDisplay;
     private GridView mGridView;
@@ -53,29 +59,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        loadMovieData(SORT_BY_VALUE);
+        loadMovieData(SORT_PATH);
     }
 
-    private void loadMovieData(String sortByValue) {
-        showMovieDataView();
-        new FetchMoviesTask().execute(sortByValue);
-    }
-
-    private void invalidateData() {
-        mGridView.setAdapter(null);
-        gridViewAdapter.clear();
-    }
-
-    private void showMovieDataView() {
-        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
-        mGridView.setVisibility(View.VISIBLE);
+    //test if you have an internet connection
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
 
     }
 
-    private void showErrorMessage() {
-        mErrorMessageDisplay.setVisibility(View.VISIBLE);
-        mGridView.setVisibility(View.INVISIBLE);
-
+    private void loadMovieData(String sortPath) {
+        // showMovieDataView();
+        if (isNetworkAvailable()) {
+            FetchMoviesTask fetchMoviesTask = new FetchMoviesTask(MainActivity.this, gridViewAdapter);
+            fetchMoviesTask.execute(sortPath);
+            // new FetchMoviesTask().execute(sortPath,getApplicationContext());
+        } else {
+            Log.e(TAG, "A problem with your internet connection!");
+            mErrorMessageDisplay.setText("You do not have an internet connection...");
+            mErrorMessageDisplay.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -95,60 +100,21 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_most_popular:
                 if (item.isChecked()) item.setChecked(false);
                 else item.setChecked(true);
-                SORT_BY_VALUE = "popularity.desc";
+                SORT_PATH = "popular";
                 gridViewAdapter.clear();
-                loadMovieData(SORT_BY_VALUE);
+                loadMovieData(SORT_PATH);
                 return true;
             case R.id.action_highest_rated:
                 if (item.isChecked()) item.setChecked(false);
                 else item.setChecked(true);
-                SORT_BY_VALUE = "vote_average.desc";
+                SORT_PATH = "top_rated";
                 gridViewAdapter.clear();
-                loadMovieData(SORT_BY_VALUE);
+                loadMovieData(SORT_PATH);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
-
-        @Override
-        protected List<Movie> doInBackground(String... params) {
-            if (params.length == 0) {
-                return null;
-            }
-            String sortByValue = params[0];
-            URL moviesRequestURL = NetworkUtils.buildUrl(sortByValue);
-            try {
-                String jsonResponse = NetworkUtils.getResponseFromHttpUrl(moviesRequestURL);
-                List<Movie> MoviesJsonData = OpenMoviesJsonUtils.getMoviesFromJson(MainActivity.this, jsonResponse);
-                return MoviesJsonData;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected void onPostExecute(List<Movie> movies) {
-            super.onPostExecute(movies);
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if (movies != null) {
-                showMovieDataView();
-                gridViewAdapter.setData(movies);
-            } else {
-                showErrorMessage();
-            }
-        }
-
-
-    }
 
 }

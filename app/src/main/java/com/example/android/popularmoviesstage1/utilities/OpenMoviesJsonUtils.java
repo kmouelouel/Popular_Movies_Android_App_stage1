@@ -56,22 +56,17 @@ public class OpenMoviesJsonUtils {
     }
 
     public static Movie getMovieData(JSONObject movieObject) {
-        int id = 0;
-        String title = null;
-        String overview = null;
-        String releaseDate = null;
-        String posterPath = null;
-        String backdropPathImage = null;
-        int voteAverage = 0;
+       Movie currentMovie= new Movie();
         try {
-            posterPath = movieObject.getString(KEY_POSTER);
-            backdropPathImage = movieObject.getString(KEY_BACKDROP_IMAGE);
-            voteAverage = movieObject.getInt(KEY_VOTE_AVERAGE);
-            title = movieObject.getString(KEY_TITLE);
-            id = movieObject.getInt(KEY_ID);
-            overview = movieObject.getString(KEY_OVERVIEW);
-            releaseDate = movieObject.getString(KEY_RELEASE_DATE);
-            return new Movie(id, title, posterPath, backdropPathImage, overview, voteAverage, releaseDate);
+
+           currentMovie.setId(movieObject.getInt(KEY_ID));
+           currentMovie.setPoster(movieObject.getString(KEY_POSTER));
+           currentMovie.setBackdrop(movieObject.getString(KEY_BACKDROP_IMAGE));
+           currentMovie.setDate(movieObject.getString(KEY_RELEASE_DATE));
+           currentMovie.setOverview(movieObject.getString(KEY_OVERVIEW));
+           currentMovie.setRating(movieObject.getInt(KEY_VOTE_AVERAGE));
+           currentMovie.setTitle(movieObject.getString(KEY_TITLE));
+            return currentMovie;
 
         } catch (JSONException e) {
             e.printStackTrace();

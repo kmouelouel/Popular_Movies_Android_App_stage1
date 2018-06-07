@@ -99,10 +99,6 @@ public class GridViewAdapter extends BaseAdapter {
         }
     }
 
-    public void invalidData(List<Movie> data) {
-        setmMovies(null);
-        notifyDataSetChanged();
-    }
 
 
 }

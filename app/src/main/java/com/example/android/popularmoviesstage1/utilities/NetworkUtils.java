@@ -2,6 +2,8 @@ package com.example.android.popularmoviesstage1.utilities;
 
 import android.net.Uri;
 
+import com.example.android.popularmoviesstage1.BuildConfig;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -12,21 +14,19 @@ import java.util.Scanner;
 public class NetworkUtils {
 
     private static final String TAG = NetworkUtils.class.getSimpleName();
-    private static final String POPULAR_MOVIES_URL = "https://api.themoviedb.org/3/discover/movie";
-    // TODO (1): add you API-KEY in order to run the project
-    //***************
-    private static final String API_KEY = "0";
-    //*****************
-    private static final String SORT_PARAM = "sort_by";
-    //  private static final String SORT_VALUE = "popularity.desc";// vote_average.desc
-    private final static String API_KEY_PARAM = "api_key";
 
-    public static URL buildUrl(String sortByValue) {
+    private static final String API_KEY = BuildConfig.API_KEY;
+     private final static String API_KEY_PARAM = "api_key";
 
-        Uri builtUri = Uri.parse(POPULAR_MOVIES_URL).buildUpon()
-                .appendQueryParameter(API_KEY_PARAM, API_KEY)
-                .appendQueryParameter(SORT_PARAM, sortByValue)
-                .build();
+    public static URL buildUrl(String sortPath) {
+   //https://api.themoviedb.org/3/movie/top_rated?api_key=api_key
+       Uri.Builder builtUri = new Uri.Builder();
+        builtUri.scheme("https")
+               .authority("api.themoviedb.org")
+               .appendPath("3")
+               .appendPath("movie")
+               .appendPath(sortPath)
+               .appendQueryParameter(API_KEY_PARAM,API_KEY);
 
         URL url = null;
         try {
